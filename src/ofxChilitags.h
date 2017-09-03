@@ -4,9 +4,10 @@
 #include "ofxCv.h"
 #include <chilitags.hpp>
 
-//TODO 3D
+//TODO 
+//3D
 
-struct Tag
+struct ChiliTag
 {
   int id;
 
@@ -32,11 +33,11 @@ class ofxChilitags
     void init(int detection_period = 10);
     void update(ofPixels &pixels);
 
-    vector<Tag>& tags();
+    vector<ChiliTag>& tags();
 
   private:
  
-    vector<Tag> _tags;
+    vector<ChiliTag> _tags;
     chilitags::Chilitags chilitags;
 
     /*
@@ -51,7 +52,7 @@ class ofxChilitags
      */
     chilitags::Chilitags::DetectionTrigger trig;
 
-    Tag make_tag(int id, const cv::Mat_<cv::Point2f> &corners, int width, int height);
+    ChiliTag make_tag(int id, const cv::Mat_<cv::Point2f> &corners, int width, int height);
 
     ofVec2f UP;
 };

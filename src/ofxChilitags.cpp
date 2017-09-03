@@ -31,19 +31,19 @@ void ofxChilitags::update(ofPixels &pixels)
   {
     int id = tag.first;
     const cv::Mat_<cv::Point2f> corners(tag.second);
-    Tag t = make_tag(id, corners, width, height);
+    ChiliTag t = make_tag(id, corners, width, height);
     _tags.push_back(t);
   }
 }
 
-vector<Tag>& ofxChilitags::tags()
+vector<ChiliTag>& ofxChilitags::tags()
 {
   return _tags;
 }
 
-Tag ofxChilitags::make_tag(int id, const cv::Mat_<cv::Point2f> &corners, int width, int height)
+ChiliTag ofxChilitags::make_tag(int id, const cv::Mat_<cv::Point2f> &corners, int width, int height)
 { 
-  Tag t;
+  ChiliTag t;
   t.id = id;
 
   t.center = toOf(0.5*(corners(0) + corners(2)));

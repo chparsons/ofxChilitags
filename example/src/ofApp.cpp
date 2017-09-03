@@ -33,7 +33,7 @@ void ofApp::draw(){
 
   texRGB.draw(0, 0, w, h);
 
-  vector<Tag>& tags = chilitags.tags();
+  vector<ChiliTag>& tags = chilitags.tags();
   if (tags.empty())
     return;
 
