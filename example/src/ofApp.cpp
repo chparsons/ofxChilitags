@@ -3,7 +3,7 @@
 //--------------------------------------------------------------
 void ofApp::setup(){
 
-  vidGrabber.setDeviceID(1);
+  vidGrabber.setDeviceID(0);
   vidGrabber.setDesiredFrameRate(60);
   vidGrabber.initGrabber(1920, 1080);
 
@@ -17,6 +17,7 @@ void ofApp::update(){
   if ( !vidGrabber.isFrameNew() )
     return;
   rgb = vidGrabber.getPixels();
+  ofxCv::flip(rgb, rgb, 1);
   texRGB.loadData(rgb);
 
   chilitags.update(rgb);

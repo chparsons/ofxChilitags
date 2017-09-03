@@ -21,9 +21,7 @@ void ofApp::update(){
   if ( !kinect.isFrameNew() )
     return;
   rgb = kinect.getRgbPixels();
-
   ofxCv::flip(rgb, rgb, 1);
-
   texRGB.loadData(rgb);
   texDepth.loadData(kinect.getDepthPixels());
 
