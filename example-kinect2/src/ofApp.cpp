@@ -31,34 +31,13 @@ void ofApp::update(){
 //--------------------------------------------------------------
 void ofApp::draw(){
 
-  float s = 0.25;
-
-  float w = rgb.getWidth()*s;
-  float h = rgb.getHeight()*s;
+  float w = ofGetWidth();
+  float h = ofGetHeight();
 
   texRGB.draw(0, 0, w, h);
   texDepth.draw(w + 10, 0);
 
-  vector<ChiliTag>& tags = chilitags.tags();
-  if (tags.empty())
-    return;
-
-  ofVec2f scale(w,h);
-
-  ofPushStyle();
-  ofSetColor(ofColor::red);
-  for (int i = 0; i < tags.size(); i++)
-  {
-    vector<ofVec2f> &corners = tags[i].corners_n;
-    ofVec2f p0,p1;
-    for (int j = 0; j < corners.size(); j++)
-    {
-      p0 = corners[j] * scale;
-      p1 = corners[ (j+1)%4 ] * scale;
-      ofDrawLine( p0.x, p0.y, p1.x, p1.y );
-    }
-  }
-  ofPopStyle();
+  chilitags.render(0, 0, w, h);
 }
 
 //--------------------------------------------------------------

@@ -36,6 +36,29 @@ void ofxChilitags::update(ofPixels &pixels)
   }
 }
 
+void ofxChilitags::render(float x, float y, float w, float h, ofColor color)
+{
+  ofVec2f scale(w,h);
+  ofVec2f translate(x,y);
+
+  ofPushStyle();
+  ofSetColor(color);
+
+  for (int i = 0; i < _tags.size(); i++)
+  {
+    vector<ofVec2f> &corners_n = _tags[i].corners_n;
+    ofVec2f p0,p1;
+    for (int j = 0; j < corners_n.size(); j++)
+    {
+      p0 = corners_n[j] * scale + translate;
+      p1 = corners_n[ (j+1)%4 ] * scale + translate;
+      ofDrawLine( p0.x, p0.y, p1.x, p1.y );
+    }
+  }
+
+  ofPopStyle();
+}
+
 vector<ChiliTag>& ofxChilitags::tags()
 {
   return _tags;
