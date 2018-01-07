@@ -13,8 +13,11 @@ void ofxChilitags::init(int detection_period)
   chilitags.setPerformance(chilitags::Chilitags::ROBUST);
   chilitags.setFilter(0, 0.);
   chilitags.setDetectionPeriod(detection_period);
+#ifdef HAS_MULTITHREADING
   trig = chilitags::Chilitags::ASYNC_DETECT_PERIODICALLY;
-  //trig = chilitags::Chilitags::DETECT_PERIODICALLY;
+#else
+  trig = chilitags::Chilitags::DETECT_PERIODICALLY;
+#endif
   UP = ofVec2f(0,1);
 }
 
@@ -23,8 +26,7 @@ void ofxChilitags::update(ofPixels &pixels)
   int width = pixels.getWidth();
   int height = pixels.getHeight(); 
 
-  cv::Mat inputImage = toCv(pixels);
-  auto tags2d = chilitags.find(inputImage, trig);
+  auto tags2d = chilitags.find(toCv(pixels), trig);
 
   _tags.clear();
   for (const auto& tag : tags2d)
