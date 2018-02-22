@@ -21,7 +21,7 @@ void ofxChilitags::init(int detection_period)
   UP = ofVec2f(0,1);
 }
 
-void ofxChilitags::update(ofPixels &pixels)
+void ofxChilitags::update(ofPixels pixels)
 {
   int width = pixels.getWidth();
   int height = pixels.getHeight(); 

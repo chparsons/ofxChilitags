@@ -31,7 +31,7 @@ class ofxChilitags
     ~ofxChilitags(); 
 
     void init(int detection_period = 10);
-    void update(ofPixels &pixels);
+    void update(ofPixels pixels);
     void render(float x = 0, float y = 0, float w = 640, float h = 480, ofColor color = ofColor::red);
 
     vector<ChiliTag>& tags();
