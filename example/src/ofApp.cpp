@@ -17,7 +17,7 @@ void ofApp::update(){
   if ( !vidGrabber.isFrameNew() )
     return;
   rgb = vidGrabber.getPixels();
-  ofxCv::flip(rgb, rgb, 1); //some cameras need flipping
+  //ofxCv::flip(rgb, rgb, 1); //some cameras need flipping
   texRGB.loadData(rgb);
 
   chilitags.update(rgb);
