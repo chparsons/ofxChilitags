@@ -45,18 +45,6 @@ void ofxChilitags::update(ofPixels &pixels)
   {
     findMarkers(pixels);
   }
-
-  //int width = pixels.getWidth();
-  //int height = pixels.getHeight();
-  //auto tags2d = chilitags.find(toCv(pixels), trig);
-  //markers.clear();
-  //for (const auto& tag : tags2d)
-  //{
-    //int id = tag.first;
-    //const cv::Mat_<cv::Point2f> corners(tag.second);
-    //ChiliTag t = make_tag(id, corners, width, height);
-    //markers.push_back(t);
-  //}
 }
 
 void ofxChilitags::threadedFunction()
