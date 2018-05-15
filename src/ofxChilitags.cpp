@@ -8,8 +8,10 @@ ofxChilitags::ofxChilitags()
 ofxChilitags::~ofxChilitags()
 {}
 
-void ofxChilitags::init(int detection_period)
+void ofxChilitags::init(bool threaded, int detection_period)
 {
+  this->threaded = threaded;
+
   chilitags.setPerformance(chilitags::Chilitags::ROBUST);
   chilitags.setFilter(0, 0.);
   chilitags.setDetectionPeriod(detection_period);
@@ -19,23 +21,92 @@ void ofxChilitags::init(int detection_period)
   trig = chilitags::Chilitags::DETECT_PERIODICALLY;
 #endif
   UP = ofVec2f(0,1);
+
+  if (threaded) 
+    startThread();
 }
 
-void ofxChilitags::update(ofPixels pixels)
+void ofxChilitags::update(ofPixels &pixels)
+{ 
+  if (threaded)
+  {
+    lock();
+    frontPixels = pixels;
+    newDetectMarkers = true;
+    if (foundMarkers)
+    {
+      swap(markers, intraMarkers);
+      foundMarkers = false;
+    }
+    condition.signal();
+    unlock();
+  }
+  else
+  {
+    findMarkers(pixels);
+  }
+
+  //int width = pixels.getWidth();
+  //int height = pixels.getHeight();
+  //auto tags2d = chilitags.find(toCv(pixels), trig);
+  //markers.clear();
+  //for (const auto& tag : tags2d)
+  //{
+    //int id = tag.first;
+    //const cv::Mat_<cv::Point2f> corners(tag.second);
+    //ChiliTag t = make_tag(id, corners, width, height);
+    //markers.push_back(t);
+  //}
+}
+
+void ofxChilitags::threadedFunction()
+{
+  while (isThreadRunning())
+  {
+    lock();
+    if (!newDetectMarkers) 
+      condition.wait(mutex);
+    bool detectMarkers = false;
+    if (newDetectMarkers)
+    {
+      swap(frontPixels, backPixels);
+      detectMarkers = true;
+      newDetectMarkers = false;
+    }
+    unlock();
+    if (detectMarkers)
+      findMarkers(backPixels);
+  }
+}
+
+void ofxChilitags::findMarkers(ofPixels &pixels)
 {
   int width = pixels.getWidth();
-  int height = pixels.getHeight(); 
+  int height = pixels.getHeight();
 
-  auto tags2d = chilitags.find(toCv(pixels), trig);
+  cv::Mat mat = ofxCv::toCv(pixels);
+  auto tags2d = chilitags.find(mat, trig);
 
-  _tags.clear();
+  backMarkers.clear();
   for (const auto& tag : tags2d)
   {
     int id = tag.first;
     const cv::Mat_<cv::Point2f> corners(tag.second);
     ChiliTag t = make_tag(id, corners, width, height);
-    _tags.push_back(t);
+    backMarkers.push_back(t);
   }
+
+  if (threaded)
+  {
+		lock();
+		swap(backMarkers, intraMarkers);
+		foundMarkers = true;
+		unlock();
+	}
+  else
+  {
+		swap(backMarkers, markers);
+	}
 }
 
 void ofxChilitags::render(float x, float y, float w, float h, ofColor color)
@@ -46,9 +117,9 @@ void ofxChilitags::render(float x, float y, float w, float h, ofColor color)
   ofPushStyle();
   ofSetColor(color);
 
-  for (int i = 0; i < _tags.size(); i++)
+  for (int i = 0; i < markers.size(); i++)
   {
-    vector<ofVec2f> &corners_n = _tags[i].corners_n;
+    vector<ofVec2f> &corners_n = markers[i].corners_n;
     ofVec2f p0,p1;
     for (int j = 0; j < corners_n.size(); j++)
     {
@@ -63,7 +134,7 @@ void ofxChilitags::render(float x, float y, float w, float h, ofColor color)
 
 vector<ChiliTag>& ofxChilitags::tags()
 {
-  return _tags;
+  return markers;
 }
 
 ChiliTag ofxChilitags::make_tag(int id, const cv::Mat_<cv::Point2f> &corners, int width, int height)
