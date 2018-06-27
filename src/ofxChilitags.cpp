@@ -8,9 +8,10 @@ ofxChilitags::ofxChilitags()
 ofxChilitags::~ofxChilitags()
 {}
 
-void ofxChilitags::init(bool threaded, int detection_period)
+void ofxChilitags::init(bool threaded, int detection_period, float fps_)
 {
   this->threaded = threaded;
+  fps(fps_);
 
   chilitags.setPerformance(chilitags::Chilitags::ROBUST);
   chilitags.setFilter(0, 0.);
@@ -69,6 +70,20 @@ void ofxChilitags::threadedFunction()
 
 void ofxChilitags::findMarkers(ofPixels &pixels)
 {
+  unsigned long long now = ofGetElapsedTimeMicros();
+  unsigned long long dt = now - prev;
+  prev = now;
+  lag += dt;
+
+  if (lag < micros_per_update)
+    return;
+
+  dt_micros = now - prev_proc;
+  float fA = 0.95; 
+  _dt_micros = (fA*_dt_micros)+((1.0-fA)*dt_micros);
+  prev_proc = now;
+  lag -= micros_per_update;
+
   int width = pixels.getWidth();
   int height = pixels.getHeight();
 
@@ -150,6 +165,22 @@ ChiliTag ofxChilitags::make_tag(int id, const cv::Mat_<cv::Point2f> &corners, in
   t.angle = t.dir.angleRad(UP) + PI; 
 
   return t;
+};
+
+void ofxChilitags::fps(float v) 
+{
+  _fps = v;
+  micros_per_update = 1000000.0/_fps;
+};
+
+float ofxChilitags::fps() 
+{
+  return _fps;
+};
+
+float ofxChilitags::framerate()
+{
+  return 1000000.0/_dt_micros;
 };
 
 //void ofxChilitags::init3d(string intrinsicsFilename)
