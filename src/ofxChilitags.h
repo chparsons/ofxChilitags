@@ -1,9 +1,7 @@
 #pragma once
 
 #include "ofMain.h"
-#include "ofThread.h"
 #include "ofxCv.h"
-#include "Poco/Condition.h"
 #include <chilitags.hpp>
 
 //TODO 
@@ -26,13 +24,13 @@ struct ChiliTag
   //struct Extrinsics { cv::Mat R, T; };
 };
 
-class ofxChilitags : public ofThread
+class ofxChilitags
 {
   public:
     ofxChilitags();
     ~ofxChilitags(); 
 
-    void init(bool threaded = true, int detection_period = 10, float fps_ = 30.0);
+    void init(int detection_period = 10, float fps_ = 30.0);
     void update(ofPixels &pixels);
     void render(float x = 0, float y = 0, float w = 640, float h = 480, ofColor color = ofColor::red);
 
@@ -61,17 +59,8 @@ class ofxChilitags : public ofThread
     ChiliTag make_tag(int id, const cv::Mat_<cv::Point2f> &corners, int width, int height);
     ofVec2f UP;
 
-    /*
-     * threaded logic based on ofxAruco
-     * https://github.com/arturoc/ofxAruco
-     */
     void findMarkers(ofPixels &pixels);
-    vector<ChiliTag> markers, backMarkers, intraMarkers;
-    ofPixels frontPixels, backPixels, intraPixels;
-    bool newDetectMarkers, foundMarkers;
-    Poco::Condition condition;
-    void threadedFunction();
-    bool threaded;
+    vector<ChiliTag> markers, backMarkers;
 
     //time in micros
     unsigned long long prev, lag, prev_proc, dt_micros;

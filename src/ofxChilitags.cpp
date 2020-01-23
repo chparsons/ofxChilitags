@@ -8,9 +8,8 @@ ofxChilitags::ofxChilitags()
 ofxChilitags::~ofxChilitags()
 {}
 
-void ofxChilitags::init(bool threaded, int detection_period, float fps_)
+void ofxChilitags::init(int detection_period, float fps_)
 {
-  this->threaded = threaded;
   fps(fps_);
 
   chilitags.setPerformance(chilitags::Chilitags::ROBUST);
@@ -22,50 +21,11 @@ void ofxChilitags::init(bool threaded, int detection_period, float fps_)
   trig = chilitags::Chilitags::DETECT_PERIODICALLY;
 #endif
   UP = ofVec2f(0,1);
-
-  if (threaded) 
-    startThread();
 }
 
 void ofxChilitags::update(ofPixels &pixels)
 { 
-  if (threaded)
-  {
-    lock();
-    frontPixels = pixels;
-    newDetectMarkers = true;
-    if (foundMarkers)
-    {
-      swap(markers, intraMarkers);
-      foundMarkers = false;
-    }
-    condition.signal();
-    unlock();
-  }
-  else
-  {
-    findMarkers(pixels);
-  }
-}
-
-void ofxChilitags::threadedFunction()
-{
-  while (isThreadRunning())
-  {
-    lock();
-    if (!newDetectMarkers) 
-      condition.wait(mutex);
-    bool detectMarkers = false;
-    if (newDetectMarkers)
-    {
-      swap(frontPixels, backPixels);
-      detectMarkers = true;
-      newDetectMarkers = false;
-    }
-    unlock();
-    if (detectMarkers)
-      findMarkers(backPixels);
-  }
+  findMarkers(pixels);
 }
 
 void ofxChilitags::findMarkers(ofPixels &pixels)
@@ -99,17 +59,7 @@ void ofxChilitags::findMarkers(ofPixels &pixels)
     backMarkers.push_back(t);
   }
 
-  if (threaded)
-  {
-		lock();
-		swap(backMarkers, intraMarkers);
-		foundMarkers = true;
-		unlock();
-	}
-  else
-  {
-		swap(backMarkers, markers);
-	}
+  swap(backMarkers, markers);
 }
 
 void ofxChilitags::render(float x, float y, float w, float h, ofColor color)
